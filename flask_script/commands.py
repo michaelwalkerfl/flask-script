@@ -452,31 +452,35 @@ class Server(Command):
                  threaded, processes, passthrough_errors, ssl_crt, ssl_key):
         # we don't need to run the server in request context
         # so just run it directly
+        from gevent.pywsgi import WSGIServer
 
-        if use_debugger is None:
-            use_debugger = app.debug
-            if use_debugger is None:
-                use_debugger = True
-                if sys.stderr.isatty():
-                    print("Debugging is on. DANGER: Do not allow random users to connect to this server.", file=sys.stderr)
-        if use_reloader is None:
-            use_reloader = use_debugger
+        http_server = WSGIServer(('', 5000), app)
+        http_server.serve_forever()
+        # if use_debugger is None:
+        #     use_debugger = app.debug
+        #     if use_debugger is None:
+        #         use_debugger = True
+        #         if sys.stderr.isatty():
+        #             print("Debugging is on. DANGER: Do not allow random users to connect to this server.", file=sys.stderr)
+        # if use_reloader is None:
+        #     use_reloader = use_debugger
 
-        if None in [ssl_crt, ssl_key]:
-            ssl_context = None
-        else:
-            ssl_context = (ssl_crt, ssl_key)
+        # if None in [ssl_crt, ssl_key]:
+        #     ssl_context = None
+        # else:
+        #     ssl_context = (ssl_crt, ssl_key)
 
-        app.run(host=host,
-                port=port,
-                debug=use_debugger,
-                use_debugger=use_debugger,
-                use_reloader=use_reloader,
-                threaded=threaded,
-                processes=processes,
-                passthrough_errors=passthrough_errors,
-                ssl_context=ssl_context,
-                **self.server_options)
+        # app.run(host=host,
+        #         port=port,
+        #         debug=use_debugger,
+        #         use_debugger=use_debugger,
+        #         use_reloader=use_reloader,
+        #         threaded=threaded,
+        #         processes=processes,
+        #         passthrough_errors=passthrough_errors,
+        #         ssl_context=ssl_context,
+        #         **self.server_options)
+        
 
 
 class Clean(Command):
