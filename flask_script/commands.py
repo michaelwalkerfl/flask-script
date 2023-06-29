@@ -120,7 +120,7 @@ class Command(object):
             inspect.getargspec = inspect.getfullargspec
             args, varargs, keywords, defaults, kwonlyargs, kwonlydefaults, annotations = inspect.getargspec(func)
         else:
-            args, varargs, keywords, defaults = inspect.getargspec(func)
+            args, varargs, keywords, defaults, *kwargs = inspect.getargspec(func)
         if inspect.ismethod(func):
             args = args[1:]
 
