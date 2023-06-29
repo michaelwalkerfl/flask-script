@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import,print_function
+from __future__ import absolute_import, print_function
 
 import os
 import sys
@@ -28,6 +28,7 @@ class InvalidCommand(Exception):
         supplies Flask-Script hooks.
         """
     pass
+
 
 class Group(object):
     """
@@ -115,7 +116,11 @@ class Command(object):
                 self.option_list = []
             return
 
-        args, varargs, keywords, defaults = inspect.getargspec(func)
+        if not hasattr(inspect, 'getargspec'):
+            inspect.getargspec = inspect.getfullargspec
+            args, varargs, keywords, defaults, kwonlyargs, kwonlydefaults, annotations = inspect.getargspec(func)
+        else:
+            args, varargs, keywords, defaults = inspect.getargspec(func)
         if inspect.ismethod(func):
             args = args[1:]
 
@@ -183,7 +188,7 @@ class Command(object):
 
         if help_args:
             from flask_script import add_help
-            add_help(parser,help_args)
+            add_help(parser, help_args)
 
         for option in self.get_options():
             if isinstance(option, Group):
@@ -222,13 +227,14 @@ class Command(object):
         """
         raise NotImplementedError
 
+
 class Shell(Command):
     """
     Runs a Python shell inside Flask application context.
 
     :param banner: banner appearing at top of shell when started
     :param make_context: a callable returning a dict of variables
-                         used in the shell namespace. By default
+                         used in the shell namespace. By default,
                          returns a dict consisting of just the app.
     :param use_ptipython: use PtIPython shell if available, ignore if not.
                           The PtIPython shell can be turned off in command
@@ -265,25 +271,25 @@ class Shell(Command):
     def get_options(self):
         return (
             Option('--no-ipython',
-                action="store_true",
-                dest='no_ipython',
-                default=not(self.use_ipython),
-                help="Do not use the IPython shell"),
+                   action="store_true",
+                   dest='no_ipython',
+                   default=not(self.use_ipython),
+                   help="Do not use the IPython shell"),
             Option('--no-bpython',
-                action="store_true",
-                dest='no_bpython',
-                default=not(self.use_bpython),
-                help="Do not use the BPython shell"),
+                   action="store_true",
+                   dest='no_bpython',
+                   default=not(self.use_bpython),
+                   help="Do not use the BPython shell"),
             Option('--no-ptipython',
-                action="store_true",
-                dest='no_ptipython',
-                default=not(self.use_ptipython),
-                help="Do not use the PtIPython shell"),
+                   action="store_true",
+                   dest='no_ptipython',
+                   default=not(self.use_ptipython),
+                   help="Do not use the PtIPython shell"),
             Option('--no-ptpython',
-                action="store_true",
-                dest='no_ptpython',
-                default=not(self.use_ptpython),
-                help="Do not use the PtPython shell"),
+                   action="store_true",
+                   dest='no_ptpython',
+                   default=not(self.use_ptpython),
+                   help="Do not use the PtPython shell"),
         )
 
     def get_context(self):
@@ -363,7 +369,7 @@ class Server(Command):
     :param threaded: should the process handle each request in a separate
                      thread?
     :param processes: number of processes to spawn
-    :param passthrough_errors: disable the error catching. This means that the server will die on errors but it can be useful to hook debuggers in (pdb etc.)
+    :param passthrough_errors: disable the error catching. This means that the server will die on errors, but it can be useful to hook debuggers in (pdb etc.)
     :param ssl_crt: path to ssl certificate file
     :param ssl_key: path to ssl key file
     :param options: :func:`werkzeug.run_simple` options.
@@ -482,9 +488,8 @@ class Server(Command):
         #         **self.server_options)
         
 
-
 class Clean(Command):
-    "Remove *.pyc and *.pyo files recursively starting at current directory"
+    """Remove *.pyc and *.pyo files recursively starting at current directory"""
     def run(self):
         for dirpath, dirnames, filenames in os.walk('.'):
             for filename in filenames:
@@ -496,7 +501,7 @@ class Clean(Command):
 
 class ShowUrls(Command):
     """
-        Displays all of the url matching routes for the project
+        Displays all urls matching routes for the project
     """
     def __init__(self, order='rule'):
         self.order = order
